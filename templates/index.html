@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Guess Game</title>
+  <script>
+    let currentWord = "";
+
+    async function startGame() {
+      let res = await fetch("/get_word");
+      let data = await res.json();
+      currentWord = data.word;
+      document.getElementById("result").innerText = "A word is chosen! Start guessing.";
+    }
+
+    async function checkGuess() {
+      let guess = document.getElementById("guess").value;
+      if (!guess) return alert("Enter a guess!");
+
+      let res = await fetch("/check_guess", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ guess: guess, word: currentWord })
+      });
+
+      let data = await res.json();
+      document.getElementById("result").innerText = data.result;
+
+      if (data.game_over) {
+        alert("🎉 You guessed the word! Starting new game...");
+        startGame();
+      }
+    }
+
+    window.onload = startGame;
+  </script>
+</head>
+<body>
+  <h1>Word Guess Game</h1>
+  <input id="guess" type="text" placeholder="Enter your guess"/>
+  <button onclick="checkGuess()">Check</button>
+  <p id="result"></p>
+</body>
+</html>
