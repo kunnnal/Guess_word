@@ -3,13 +3,15 @@
 <head>
   <title>Word Guess Game</title>
   <script>
-    let currentWord = "";
+    let currentWordLength = 0;
 
     async function startGame() {
       let res = await fetch("/get_word");
       let data = await res.json();
-      currentWord = data.word;
-      document.getElementById("result").innerText = "A word is chosen! Start guessing.";
+      currentWordLength = data.length;
+      document.getElementById("guess").value = "";
+      document.getElementById("guess").placeholder = `Enter a ${currentWordLength}-letter guess`;
+      document.getElementById("result").innerText = `A ${currentWordLength}-letter word is chosen! Start guessing.`;
     }
 
     async function checkGuess() {
@@ -19,13 +21,13 @@
       let res = await fetch("/check_guess", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ guess: guess, word: currentWord })
+        body: JSON.stringify({ guess: guess })
       });
 
       let data = await res.json();
       document.getElementById("result").innerText = data.result;
 
-      if (data.game_over) {
+      if (data.game_over && res.ok) {
         alert("🎉 You guessed the word! Starting new game...");
         startGame();
       }
